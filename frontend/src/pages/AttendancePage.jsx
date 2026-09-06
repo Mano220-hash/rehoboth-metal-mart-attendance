@@ -149,14 +149,25 @@ const AttendancePage = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3.5">
           {filters.filterType === 'daily' && (
             <div>
-              <label className="label text-xs flex items-center justify-between">
+              <label className="label text-xs flex items-center justify-between mb-1">
                 <span>Target Date</span>
-                <span className="text-[#1D4ED8] font-extrabold">{formatDateDDMMYYYY(filters.date)}</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[#1D4ED8] font-extrabold">{formatDateDDMMYYYY(filters.date || serverDate)}</span>
+                  {filters.date !== serverDate && (
+                    <button
+                      type="button"
+                      onClick={() => setFilters(f => ({ ...f, date: serverDate }))}
+                      className="text-[10px] bg-blue-100 text-blue-700 hover:bg-blue-200 px-2 py-0.5 rounded-md font-bold transition-all shadow-2xs"
+                    >
+                      Set Today
+                    </button>
+                  )}
+                </div>
               </label>
               <input
                 type="date"
                 className="input-field text-xs font-bold rounded-xl"
-                value={filters.date}
+                value={filters.date || serverDate}
                 onChange={e => setFilters(f => ({ ...f, date: e.target.value }))}
               />
             </div>
