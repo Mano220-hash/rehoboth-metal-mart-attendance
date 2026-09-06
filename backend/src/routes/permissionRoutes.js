@@ -1,0 +1,14 @@
+const express = require('express');
+const router = express.Router();
+const { createPermission, getPermissions, getEmployeePermissions, reviewPermission, recordPermissionOut, recordPermissionReturn, getPermissionStats, cancelPermission, adminCancelPermission } = require('../controllers/permissionController');
+const { protect } = require('../middleware/auth');
+router.post('/', createPermission);
+router.get('/employee/:employeeId', getEmployeePermissions);
+router.post('/out', recordPermissionOut);
+router.post('/in', recordPermissionReturn);
+router.put('/:id/cancel', cancelPermission);
+router.put('/:id/admin-cancel', protect, adminCancelPermission);
+router.get('/stats', protect, getPermissionStats);
+router.get('/', protect, getPermissions);
+router.put('/:id/review', protect, reviewPermission);
+module.exports = router;

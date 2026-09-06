@@ -1,0 +1,11 @@
+const express = require('express');
+const router = express.Router();
+const { getEmployees, getEmployee, createEmployee, updateEmployee, deleteEmployee, validateEmployee } = require('../controllers/employeeController');
+const { protect } = require('../middleware/auth');
+router.get('/validate/:employeeId', validateEmployee);
+router.get('/', protect, getEmployees);
+router.post('/', protect, createEmployee);
+router.get('/:employeeId', protect, getEmployee);
+router.put('/:employeeId', protect, updateEmployee);
+router.delete('/:employeeId', protect, deleteEmployee);
+module.exports = router;

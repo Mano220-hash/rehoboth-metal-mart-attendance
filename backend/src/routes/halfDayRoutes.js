@@ -1,0 +1,11 @@
+const express = require('express');
+const router = express.Router();
+const { createHalfDay, getHalfDays, getEmployeeHalfDays, reviewHalfDay, cancelHalfDay, adminCancelHalfDay } = require('../controllers/halfDayController');
+const { protect } = require('../middleware/auth');
+router.post('/', createHalfDay);
+router.get('/employee/:employeeId', getEmployeeHalfDays);
+router.put('/:id/cancel', cancelHalfDay);
+router.put('/:id/admin-cancel', protect, adminCancelHalfDay);
+router.get('/', protect, getHalfDays);
+router.put('/:id/review', protect, reviewHalfDay);
+module.exports = router;

@@ -1,0 +1,22 @@
+{
+  "name": "metal-mart",
+  "version": "1.0.0",
+  "description": "Attendance and Leave Management System for Metal Mart",
+  "private": true,
+  "scripts": {
+    "dev": "node start-dev.js",
+    "backend": "cd backend && npm start",
+    "frontend": "cd frontend && npm run dev",
+    "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "build": "cd frontend && npm run build",
+    "start": "node start-dev.js"
+  },
+  "keywords": [
+    "attendance",
+    "leave",
+    "management",
+    "hrms"
+  ],
+  "author": "Metal Mart",
+  "license": "MIT"
+}
