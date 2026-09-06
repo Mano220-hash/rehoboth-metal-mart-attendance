@@ -30,19 +30,17 @@ const AttendancePage = () => {
   const { showToast, ToastContainer } = useToast();
 
   useEffect(() => {
-    setFilters(prev => {
-      if (!searchParams.get('date')) {
-        return { ...prev, date: serverDate };
-      }
-      return prev;
-    });
+    if (!searchParams.get('date') && serverDate) {
+      setFilters(prev => ({ ...prev, date: serverDate }));
+    }
   }, [serverDate, searchParams]);
 
   const fetchAttendance = async () => {
     setLoading(true);
     try {
       const params = {};
-      if (filters.filterType === 'daily' && filters.date) params.date = filters.date;
+      const targetDate = (filters.filterType === 'daily' ? (filters.date || serverDate) : filters.date);
+      if (filters.filterType === 'daily' && targetDate) params.date = targetDate;
       else if (filters.filterType === 'range') {
         if (filters.startDate) params.startDate = filters.startDate;
         if (filters.endDate) params.endDate = filters.endDate;
@@ -64,7 +62,7 @@ const AttendancePage = () => {
 
   useEffect(() => {
     fetchAttendance();
-  }, [filters.date, filters.status, filters.filterType, filters.startDate, filters.endDate, filters.employeeId]);
+  }, [filters.date, filters.status, filters.filterType, filters.startDate, filters.endDate, filters.employeeId, serverDate]);
 
   const handleExportExcel = async () => {
     setExporting(true);
