@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const mongoose = require('mongoose');
 const connectDB = require('../backend/src/config/db');
 const seedAdmin = require('../backend/src/utils/seedAdmin');
 const errorHandler = require('../backend/src/middleware/errorHandler');
@@ -31,19 +32,29 @@ app.use(express.urlencoded({ extended: true }));
 
 let isInit = false;
 app.use(async (req, res, next) => {
-  if (!isInit) {
-    try {
+  try {
+    if (mongoose.connection.readyState < 1) {
       await connectDB();
-      await seedAdmin();
-      isInit = true;
-    } catch (err) {
-      console.error('Serverless DB Init Error:', err);
+      if (!isInit) {
+        await seedAdmin();
+        isInit = true;
+      }
     }
+    next();
+  } catch (err) {
+    console.error('Serverless DB Connection Error:', err.message);
+    res.status(500).json({
+      success: false,
+      message: `Database connection failed: ${err.message}. Ensure MongoDB Atlas IP Whitelist allows access (0.0.0.0/0) and MONGO_URI is set on Vercel/Render.`,
+    });
   }
-  next();
 });
 
 app.use('/api/', apiLimiter);
+
+app.get('/', (req, res) => {
+  res.status(200).json({ success: true, message: "Rehoboth Metal Mart API is running" });
+});
 
 app.get('/api/health', (req, res) => {
   res.json({ success: true, message: 'Rehobooth Metal Mart API running on Vercel', timestamp: new Date() });
