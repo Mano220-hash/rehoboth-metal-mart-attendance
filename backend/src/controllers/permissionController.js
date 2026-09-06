@@ -2,8 +2,13 @@ const PermissionRequest = require('../models/PermissionRequest');
 const Employee = require('../models/Employee');
 
 const getTodayDate = () => {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const tz = process.env.TIMEZONE || 'Asia/Kolkata';
+  try {
+    return new Date().toLocaleDateString('en-CA', { timeZone: tz });
+  } catch (e) {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  }
 };
 const getTimeString = () => new Date().toTimeString().split(' ')[0];
 const timeToMinutes = (time) => {

@@ -3,14 +3,22 @@ const Employee = require('../models/Employee');
 
 const getServerDate = async (req, res, next) => {
   try {
+    const tz = process.env.TIMEZONE || 'Asia/Kolkata';
     const now = new Date();
     const today = getTodayDate();
     const [y, m, d] = today.split('-');
     const formattedDate = `${d}-${m}-${y}`;
 
-    // Compute exact milliseconds remaining until 12:00 AM midnight server time
-    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0);
-    const msUntilMidnight = Math.max(1000, tomorrow.getTime() - now.getTime());
+    let msUntilMidnight = 86400000;
+    try {
+      const nowTzStr = now.toLocaleString('en-US', { timeZone: tz });
+      const nowTz = new Date(nowTzStr);
+      const tomorrowTz = new Date(nowTz.getFullYear(), nowTz.getMonth(), nowTz.getDate() + 1, 0, 0, 0, 0);
+      msUntilMidnight = Math.max(1000, tomorrowTz.getTime() - nowTz.getTime());
+    } catch (e) {
+      const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0);
+      msUntilMidnight = Math.max(1000, tomorrow.getTime() - now.getTime());
+    }
 
     res.json({
       success: true,
@@ -25,11 +33,16 @@ const getServerDate = async (req, res, next) => {
 };
 
 const getTodayDate = () => {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
+  const tz = process.env.TIMEZONE || 'Asia/Kolkata';
+  try {
+    return new Date().toLocaleDateString('en-CA', { timeZone: tz });
+  } catch (e) {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
 };
 
 const getTimeString = () => {

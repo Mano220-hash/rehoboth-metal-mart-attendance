@@ -6,8 +6,13 @@ const HalfDayLeave = require('../models/HalfDayLeave');
 const { calculateEmployeeSalary } = require('./salaryController');
 
 const getTodayDate = () => {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const tz = process.env.TIMEZONE || 'Asia/Kolkata';
+  try {
+    return new Date().toLocaleDateString('en-CA', { timeZone: tz });
+  } catch (e) {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  }
 };
 
 const formatTime12h = (timeStr) => {

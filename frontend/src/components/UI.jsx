@@ -286,12 +286,22 @@ export const PageHeader = ({ title, subtitle, actions }) => (
 
 export const useServerDate = () => {
   const [serverDate, setServerDate] = React.useState(() => {
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    try {
+      return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+    } catch (e) {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
   });
   const [formattedDate, setFormattedDate] = React.useState(() => {
-    const d = new Date();
-    return `${String(d.getDate()).padStart(2, '0')}-${String(d.getMonth() + 1).padStart(2, '0')}-${d.getFullYear()}`;
+    try {
+      const dateStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+      const [y, m, day] = dateStr.split('-');
+      return `${day}-${m}-${y}`;
+    } catch (e) {
+      const d = new Date();
+      return `${String(d.getDate()).padStart(2, '0')}-${String(d.getMonth() + 1).padStart(2, '0')}-${d.getFullYear()}`;
+    }
   });
   const [lastRefreshed, setLastRefreshed] = React.useState(Date.now());
 
