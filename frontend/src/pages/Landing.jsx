@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { employeeAPI, attendanceAPI, permissionAPI, halfDayAPI, leaveAPI, salaryAPI } from '../api';
-import { Modal, useToast, StatusBadge, LoadingSpinner, formatTime12h } from '../components/UI';
+import { Modal, useToast, StatusBadge, LoadingSpinner, formatTime12h, useServerDate, formatDateDDMMYYYY } from '../components/UI';
 import { useForm } from 'react-hook-form';
 import { 
   LogIn, 
@@ -367,6 +367,7 @@ const EmployeeProfileCard = ({ employee, attendance, permissions = [], halfDays 
 const Landing = () => {
   const navigate = useNavigate();
   const { showToast, ToastContainer } = useToast();
+  const { serverDate } = useServerDate();
   const [employeeId, setEmployeeId] = useState('');
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(null);
@@ -391,6 +392,13 @@ const Landing = () => {
     return () => clearInterval(timer);
   }, []);
 
+  // Midnight Auto Refresh: When serverDate changes (at 12:00 AM), re-fetch today's status
+  useEffect(() => {
+    if (employee && employee.employeeId) {
+      validateAndFetch(false);
+    }
+  }, [serverDate]);
+
   const getGreeting = () => {
     const hour = currentDateTime.getHours();
     if (hour < 12) return 'Good Morning';
@@ -413,7 +421,7 @@ const Landing = () => {
   });
 
   const [permissionSlots, setPermissionSlots] = useState([
-    { date: new Date().toISOString().split('T')[0], fromTime: '', toTime: '', reason: '' }
+    { date: serverDate || new Date().toISOString().split('T')[0], fromTime: '', toTime: '', reason: '' }
   ]);
 
   const halfDayForm = useForm();

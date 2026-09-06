@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { attendanceAPI, reportAPI } from '../api';
 import { 
   LoadingSpinner, EmptyState, PageHeader, StatusBadge, useToast, 
-  formatTime12h, formatDateDDMMYYYY, TableSkeleton 
+  formatTime12h, formatDateDDMMYYYY, TableSkeleton, useServerDate 
 } from '../components/UI';
 import { 
   CalendarCheck, Calendar, Filter, RefreshCw, Download, Search, 
@@ -12,15 +12,15 @@ import {
 
 const AttendancePage = () => {
   const [searchParams] = useSearchParams();
+  const { serverDate, formattedDate } = useServerDate();
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
   const [summary, setSummary] = useState(null);
-  const [currentDateStr, setCurrentDateStr] = useState(() => new Date().toISOString().split('T')[0]);
   const [exporting, setExporting] = useState(false);
 
   const [filters, setFilters] = useState({
-    date: searchParams.get('date') || new Date().toISOString().split('T')[0],
+    date: searchParams.get('date') || serverDate,
     employeeId: searchParams.get('employeeId') || '',
     status: searchParams.get('status') || '',
     startDate: searchParams.get('startDate') || '',
@@ -30,38 +30,13 @@ const AttendancePage = () => {
   const { showToast, ToastContainer } = useToast();
 
   useEffect(() => {
-    let isMounted = true;
-    const checkServerDate = async () => {
-      try {
-        const res = await attendanceAPI.getServerDate();
-        if (res.data?.success && res.data?.serverDate && isMounted) {
-          const sDate = res.data.serverDate;
-          setCurrentDateStr(sDate);
-          setFilters(prev => {
-            if (!searchParams.get('date') && (prev.date !== sDate)) {
-              return { ...prev, date: sDate };
-            }
-            return prev;
-          });
-        }
-      } catch {}
-    };
-
-    checkServerDate();
-    const interval = setInterval(checkServerDate, 10000);
-    return () => { isMounted = false; clearInterval(interval); };
-  }, [searchParams]);
-
-  useEffect(() => {
-    setFilters({
-      date: searchParams.get('date') || currentDateStr,
-      employeeId: searchParams.get('employeeId') || '',
-      status: searchParams.get('status') || '',
-      startDate: searchParams.get('startDate') || '',
-      endDate: searchParams.get('endDate') || '',
-      filterType: searchParams.get('filterType') || 'daily',
+    setFilters(prev => {
+      if (!searchParams.get('date')) {
+        return { ...prev, date: serverDate };
+      }
+      return prev;
     });
-  }, [searchParams, currentDateStr]);
+  }, [serverDate, searchParams]);
 
   const fetchAttendance = async () => {
     setLoading(true);
@@ -176,7 +151,10 @@ const AttendancePage = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3.5">
           {filters.filterType === 'daily' && (
             <div>
-              <label className="label text-xs">Target Date</label>
+              <label className="label text-xs flex items-center justify-between">
+                <span>Target Date</span>
+                <span className="text-[#1D4ED8] font-extrabold">{formatDateDDMMYYYY(filters.date)}</span>
+              </label>
               <input
                 type="date"
                 className="input-field text-xs font-bold rounded-xl"

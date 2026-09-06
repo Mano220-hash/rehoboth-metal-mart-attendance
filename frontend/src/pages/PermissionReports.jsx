@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { reportAPI } from '../api';
-import { TableSkeleton, EmptyState, PageHeader, StatusBadge, useToast } from '../components/UI';
+import { TableSkeleton, EmptyState, PageHeader, StatusBadge, useToast, useServerDate, formatDateDDMMYYYY } from '../components/UI';
 import { 
   Bookmark, 
   Download, 
@@ -13,17 +13,26 @@ import {
 } from 'lucide-react';
 
 const PermissionReports = () => {
-  const now = new Date();
+  const { serverDate } = useServerDate();
   const [filters, setFilters] = useState({ 
     type: 'daily', 
-    date: now.toISOString().split('T')[0], 
-    month: now.getMonth() + 1, 
-    year: now.getFullYear(), 
+    date: serverDate, 
+    month: new Date().getMonth() + 1, 
+    year: new Date().getFullYear(), 
     employeeId: '', 
     startDate: '', 
     endDate: '', 
     status: '' 
   });
+
+  useEffect(() => {
+    setFilters(prev => {
+      if (prev.type === 'daily' && serverDate) {
+        return { ...prev, date: serverDate };
+      }
+      return prev;
+    });
+  }, [serverDate]);
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(false);
   const [exporting, setExporting] = useState(false);

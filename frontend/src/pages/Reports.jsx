@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { reportAPI, attendanceAPI } from '../api';
 import { 
   LoadingSpinner, EmptyState, PageHeader, StatusBadge, useToast, 
-  formatTime12h, formatDateDDMMYYYY, TableSkeleton 
+  formatTime12h, formatDateDDMMYYYY, TableSkeleton, useServerDate 
 } from '../components/UI';
 import { 
   BarChart3, FileSpreadsheet, Download, Search, Calendar, Percent, 
@@ -12,6 +12,7 @@ import {
 const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
 const Reports = () => {
+  const { serverDate } = useServerDate();
   const [records, setRecords] = useState([]);
   const [permissionRecords, setPermissionRecords] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -20,11 +21,10 @@ const Reports = () => {
   const [summary, setSummary] = useState({ total: 0, present: 0, halfDay: 0, absent: 0, datesShown: 0 });
   const [percentageData, setPercentageData] = useState([]);
   const [activeTab, setActiveTab] = useState('attendance');
-  const [currentDateStr, setCurrentDateStr] = useState(() => new Date().toISOString().split('T')[0]);
   
   const [filters, setFilters] = useState({ 
     type: 'daily', 
-    date: new Date().toISOString().split('T')[0], 
+    date: serverDate || new Date().toISOString().split('T')[0], 
     month: new Date().getMonth() + 1, 
     year: new Date().getFullYear(), 
     employeeId: '', 
@@ -34,27 +34,16 @@ const Reports = () => {
   const { showToast, ToastContainer } = useToast();
 
   useEffect(() => {
-    let isMounted = true;
-    const checkServerDate = async () => {
-      try {
-        const res = await attendanceAPI.getServerDate();
-        if (res.data?.success && res.data?.serverDate && isMounted) {
-          const sDate = res.data.serverDate;
-          setCurrentDateStr(sDate);
-          const dObj = new Date();
-          setFilters(prev => {
-            if (prev.type === 'daily' && (prev.date !== sDate)) {
-              return { ...prev, date: sDate, month: dObj.getMonth() + 1, year: dObj.getFullYear() };
-            }
-            return prev;
-          });
-        }
-      } catch {}
-    };
-    checkServerDate();
-    const timer = setInterval(checkServerDate, 10000);
-    return () => { isMounted = false; clearInterval(timer); };
-  }, []);
+    setFilters(prev => {
+      if (prev.type === 'daily' && serverDate) {
+        const parts = serverDate.split('-');
+        const y = parseInt(parts[0], 10) || new Date().getFullYear();
+        const m = parseInt(parts[1], 10) || (new Date().getMonth() + 1);
+        return { ...prev, date: serverDate, month: m, year: y };
+      }
+      return prev;
+    });
+  }, [serverDate]);
 
   const buildParams = () => {
     const p = { type: filters.type };

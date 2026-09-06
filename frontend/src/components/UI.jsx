@@ -1,4 +1,5 @@
 import React from 'react';
+import { attendanceAPI } from '../api';
 import { 
   CheckCircle2, XCircle, Clock, AlertTriangle, Info, X, 
   HelpCircle, ChevronRight, Inbox, Loader2, Sparkles
@@ -282,3 +283,65 @@ export const PageHeader = ({ title, subtitle, actions }) => (
     {actions && <div className="flex items-center gap-2.5 flex-wrap">{actions}</div>}
   </div>
 );
+
+export const useServerDate = () => {
+  const [serverDate, setServerDate] = React.useState(() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  });
+  const [formattedDate, setFormattedDate] = React.useState(() => {
+    const d = new Date();
+    return `${String(d.getDate()).padStart(2, '0')}-${String(d.getMonth() + 1).padStart(2, '0')}-${d.getFullYear()}`;
+  });
+  const [lastRefreshed, setLastRefreshed] = React.useState(Date.now());
+
+  const fetchServerDate = React.useCallback(async () => {
+    try {
+      const res = await attendanceAPI.getServerDate();
+      if (res.data?.success && res.data?.serverDate) {
+        const sDate = res.data.serverDate;
+        const fDate = res.data.formattedDate || formatDateDDMMYYYY(sDate);
+        setServerDate(sDate);
+        setFormattedDate(fDate);
+        setLastRefreshed(Date.now());
+
+        return res.data.msUntilMidnight || null;
+      }
+    } catch (e) {
+      console.error('Error fetching server date:', e);
+    }
+    return null;
+  }, []);
+
+  React.useEffect(() => {
+    let midnightTimer = null;
+    let isMounted = true;
+
+    const setupMidnightRefresh = async () => {
+      const msLeft = await fetchServerDate();
+      if (!isMounted) return;
+
+      if (msLeft && msLeft > 0) {
+        midnightTimer = setTimeout(async () => {
+          console.log('⏰ Midnight 12:00 AM reached! Auto-refreshing server date...');
+          await fetchServerDate();
+          setupMidnightRefresh();
+        }, msLeft + 500);
+      }
+    };
+
+    setupMidnightRefresh();
+
+    const pollInterval = setInterval(() => {
+      fetchServerDate();
+    }, 10000);
+
+    return () => {
+      isMounted = false;
+      if (midnightTimer) clearTimeout(midnightTimer);
+      clearInterval(pollInterval);
+    };
+  }, [fetchServerDate]);
+
+  return { serverDate, formattedDate, refreshServerDate: fetchServerDate, lastRefreshed };
+};

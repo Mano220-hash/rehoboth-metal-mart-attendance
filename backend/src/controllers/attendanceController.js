@@ -3,14 +3,21 @@ const Employee = require('../models/Employee');
 
 const getServerDate = async (req, res, next) => {
   try {
+    const now = new Date();
     const today = getTodayDate();
     const [y, m, d] = today.split('-');
     const formattedDate = `${d}-${m}-${y}`;
+
+    // Compute exact milliseconds remaining until 12:00 AM midnight server time
+    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0);
+    const msUntilMidnight = Math.max(1000, tomorrow.getTime() - now.getTime());
+
     res.json({
       success: true,
       serverDate: today,
       formattedDate,
-      timestamp: Date.now(),
+      timestamp: now.getTime(),
+      msUntilMidnight,
     });
   } catch (error) {
     next(error);

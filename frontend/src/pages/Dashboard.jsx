@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { attendanceAPI, salaryAPI, permissionAPI } from '../api';
 import { 
   StatCard, EmptyState, PageHeader, StatusBadge, 
-  formatTime12h, StatSkeleton, Modal 
+  formatTime12h, StatSkeleton, Modal, useServerDate, formatDateDDMMYYYY 
 } from '../components/UI';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, 
@@ -103,7 +103,7 @@ const Dashboard = () => {
     fetchActivePermissions();
   };
 
-  const [currentDateStr, setCurrentDateStr] = useState(() => new Date().toISOString().split('T')[0]);
+  const { serverDate, formattedDate } = useServerDate();
 
   useEffect(() => {
     fetchDashboard(true);
@@ -115,22 +115,8 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    let isMounted = true;
-    const checkServerDate = async () => {
-      try {
-        const res = await attendanceAPI.getServerDate();
-        if (res.data?.success && res.data?.serverDate && isMounted) {
-          const sDate = res.data.serverDate;
-          if (sDate !== currentDateStr) {
-            setCurrentDateStr(sDate);
-            fetchDashboard(false);
-          }
-        }
-      } catch {}
-    };
-    const timer = setInterval(checkServerDate, 10000);
-    return () => { isMounted = false; clearInterval(timer); };
-  }, [currentDateStr]);
+    fetchDashboard(false);
+  }, [serverDate]);
 
   if (loading) return (
     <div className="space-y-6">
