@@ -52,9 +52,7 @@ app.use(async (req, res, next) => {
 
 app.use('/api/', apiLimiter);
 
-app.get('/', (req, res) => {
-  res.status(200).json({ success: true, message: "Rehoboth Metal Mart API is running" });
-});
+
 
 app.get('/api/health', (req, res) => {
   res.json({ success: true, message: 'Rehobooth Metal Mart API running on Vercel', timestamp: new Date() });
