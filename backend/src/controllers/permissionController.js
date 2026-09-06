@@ -10,7 +10,20 @@ const getTodayDate = () => {
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
   }
 };
-const getTimeString = () => new Date().toTimeString().split(' ')[0];
+const getTimeString = () => {
+  const tz = process.env.TIMEZONE || 'Asia/Kolkata';
+  try {
+    return new Date().toLocaleTimeString('en-US', {
+      timeZone: tz,
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true,
+    });
+  } catch (e) {
+    return new Date().toTimeString().split(' ')[0];
+  }
+};
 const timeToMinutes = (time) => {
   const [hours, minutes] = String(time).split(':').map(Number);
   return hours * 60 + minutes;
@@ -20,10 +33,11 @@ const durationLabel = (minutes) => `${Math.floor(minutes / 60)}h ${minutes % 60}
 const formatTime12h = (timeStr) => {
   if (!timeStr || timeStr === '—' || timeStr === '-' || timeStr === 'null' || timeStr === 'undefined') return '—';
   if (/am|pm/i.test(timeStr)) return timeStr;
+  const tz = process.env.TIMEZONE || 'Asia/Kolkata';
   if (timeStr.includes('T') || timeStr.includes('Z')) {
     const d = new Date(timeStr);
     if (!isNaN(d.getTime())) {
-      return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+      return d.toLocaleTimeString('en-US', { timeZone: tz, hour: '2-digit', minute: '2-digit', hour12: true });
     }
   }
   const parts = String(timeStr).split(':');

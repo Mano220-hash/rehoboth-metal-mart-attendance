@@ -103,7 +103,7 @@ export const formatTime12h = (timeStr) => {
   if (timeStr.includes('T') || timeStr.includes('Z')) {
     const d = new Date(timeStr);
     if (!isNaN(d.getTime())) {
-      return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+      return d.toLocaleTimeString('en-US', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', hour12: true });
     }
   }
   

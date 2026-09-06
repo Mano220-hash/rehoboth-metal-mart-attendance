@@ -46,12 +46,23 @@ const getTodayDate = () => {
 };
 
 const getTimeString = () => {
-  return new Date().toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: true,
-  });
+  const tz = process.env.TIMEZONE || 'Asia/Kolkata';
+  try {
+    return new Date().toLocaleTimeString('en-US', {
+      timeZone: tz,
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true,
+    });
+  } catch (e) {
+    return new Date().toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true,
+    });
+  }
 };
 
 // Automatic data migration for existing attendance records to ensure Lunch Out < Lunch In mapping
