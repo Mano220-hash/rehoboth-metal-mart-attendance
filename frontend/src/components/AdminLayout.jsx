@@ -74,8 +74,8 @@ const AdminLayout = () => {
         {/* Sidebar Header / Brand */}
         <div className="p-4 border-b border-white/10 flex items-center justify-between">
           <div className="flex items-center gap-3 overflow-hidden">
-            <div className="w-10 h-10 rounded-2xl bg-white/15 border border-white/20 flex items-center justify-center text-white font-black text-xl shadow-inner shrink-0 backdrop-blur-md">
-              R
+            <div className="w-10 h-10 rounded-2xl bg-slate-950 border border-amber-500/40 flex items-center justify-center shadow-md shrink-0 overflow-hidden p-0.5 backdrop-blur-md">
+              <img src="/logo.jpg" alt="Rehoboth Metal Mart Logo" className="w-full h-full object-contain rounded-xl" />
             </div>
             {!desktopCollapsed && (
               <div className="min-w-0">

@@ -591,8 +591,8 @@ const Landing = () => {
         <header className="bg-gradient-to-r from-[#1D4ED8] via-[#1E3A8A] to-slate-900 text-white shadow-lg sticky top-0 z-30">
           <div className="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center text-white font-black text-xl shadow-inner backdrop-blur-md">
-                R
+              <div className="w-10 h-10 rounded-2xl bg-slate-950 border border-amber-500/40 flex items-center justify-center shadow-md shrink-0 overflow-hidden p-0.5 backdrop-blur-md">
+                <img src="/logo.jpg" alt="Rehoboth Metal Mart Logo" className="w-full h-full object-contain rounded-xl" />
               </div>
               <div>
                 <h1 className="text-white font-extrabold text-base tracking-wide flex items-center gap-1.5">
